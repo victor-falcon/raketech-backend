@@ -5,7 +5,7 @@ namespace App\Services\Countries;
 readonly class SyncCountries
 {
     public function __construct(
-        private CountrySyncProvider $provider,
+        private CountriesDataSyncProvider $provider,
         private CreateOrUpdateCountries $createOrUpdateCountries,
     ) {
     }

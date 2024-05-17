@@ -13,13 +13,8 @@ class SyncCountryJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function __construct(
-        private readonly SyncCountries $syncCountries,
-    ) {
-    }
-
-    public function handle(): void
+    public function handle(SyncCountries $syncCountries): void
     {
-        $this->syncCountries->sync();
+        $syncCountries->sync();
     }
 }

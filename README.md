@@ -3,7 +3,8 @@
 - I used Pest for testing. You can find them in the /test folder and run them with `php artisan test`.
 - The endpoint to return the list of countries is `api/countries`. The controller is in `app/Http/Controllers/Api/GetCountriesController.php`. I created a macro for responses (`app/Providers/ResponseMacroServiceProvider.php`) to return a list of resources. The idea is that, if we have more than one endpoint returning a list of items, we can always keep the same format.
 - I also created a service (`app/Services/Countries/GetAllCountries.php`) for returning the full list of countries. It's super simple, but in the future if we have filters, for example, we can receive a simple DTO to filter results.
-- About the database, for simplicity, I'm using sqlite, but we can use MySQL in production if we want. I'm also not using Docker, Sail or anything else to keep this simple. I'm using Herd in local to run the project.
+- About the database, for simplicity, I'm using sqlite, but we can use MySQL in production if we want.
+- About docker, I usually use Herd in localhost because I feel that's faster, but I installed Sail, so you can run `./vendor/bin/sail up` and access the site on `localhost`.
 
 ## Sync Countries
 

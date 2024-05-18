@@ -1,3 +1,22 @@
+- Author: Víctor Falcón <victoor89@gmail.com>
+
+## How to Execute
+
+The project it's super simple, you can run it with [Docker/Sail](https://laravel.com/docs/11.x/sail).
+
+The first time, to install vendor dependencies including sail you need to:
+
+```
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install --ignore-platform-reqs
+```
+
+Then just `./vendor/bin/sail -d`.
+
 ## About the test
 
 - I used Pest for testing. You can find them in the /test folder and run them with `php artisan test`.

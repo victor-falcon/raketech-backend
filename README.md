@@ -1,66 +1,51 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## About the test
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+- I used Pest for testing. You can find them in the /test folder and run them with `php artisan test`.
+- The endpoint to return the list of countries is `api/countries`. The controller is in `app/Http/Controllers/Api/GetCountriesController.php`. I created a macro for responses (`app/Providers/ResponseMacroServiceProvider.php`) to return a list of resources. The idea is that, if we have more than one endpoint returning a list of items, we can always keep the same format.
+- I also created a service (`app/Services/Countries/GetAllCountries.php`) for returning the full list of countries. It's super simple, but in the future if we have filters, for example, we can receive a simple DTO to filter results.
+- About the database, for simplicity, I'm using sqlite, but we can use MySQL in production if we want. I'm also not using Docker, Sail or anything else to keep this simple. I'm using Herd in local to run the project.
 
-## About Laravel
+## Sync Countries
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Instead of calling the external API to get countries on each request, I have created a `SyncCountries` service (`app/Services/Countries/SyncCountries.php`).
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This service receives an interface that is bound (`app/Providers/AppServiceProvider.php`) to the `RestCountries` implementation (`app/Services/Countries/RestCountries/RestCountriesDataSyncProvider.php`). This way, we can easily replace the external service.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+The interface returns a simple DTO, which is a collection of country data, and then we create or update countries in our database using the `cca3` as a unique key.
 
-## Learning Laravel
+This service is executed in the background weekly using a job `app/Jobs/SyncCountryJob.php`, and a command `app/Console/Commands/SyncCountriesCommand.php` (`routes/console.php`).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## About the Folder Structure
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+On big projects, I like to create bounded context folders to have all the logic related together. Instead of the current structure: 
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```text
+app
+├── Collections
+├── Console
+├── DataObjects
+├── Http
+├── Jobs
+├── Models
+├── Providers
+└── Services
+```
 
-## Laravel Sponsors
+The idea is to create one more layer like this.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```text
+src
+├── Users
+|   └── // 
+└── Countries
+    ├── Collections
+    ├── Console
+    ├── DataObjects
+    ├── Http
+    ├── Jobs
+    ├── Models
+    ├── Providers
+    └── Services
+```
 
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+I didn't implement this in this exercise, as it's a small project/example, but I wanted to comment on it for clarity.
